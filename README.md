@@ -35,7 +35,7 @@ PlayIN aims for the global market. An entity in Hong Kong has been established t
 
 ## Integration
 
-Implementation 'com.tech:playinsdk:1.0.1'
+implementation 'com.tech:playinsdk:1.0.2'
 
 ## Usage guide
 
