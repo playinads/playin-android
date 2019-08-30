@@ -2,7 +2,7 @@
 
 PlayIN ADs -The Next Generation Playable ADs Solution
 
-README: [English](https://github.com/PlayIN-lijunge/PlayINSDK) | [中文](https://github.com/playinads/playin-iOS/blob/master/README_中文)
+README: [English](https://github.com/PlayIN-lijunge/PlayINSDK) | [中文](https://github.com/playinads/playin-android/blob/master/README_中文)
 
 
 ![image](https://github.com/lijunge/PlayINDemo/raw/master/PlayIn_1.gif) ![image](https://github.com/lijunge/PlayINDemo/raw/master/PlayIn_2.gif)
@@ -30,7 +30,7 @@ PlayIN Ads是一种新型的试玩广告技术，可以让用户在不安装APP�
 
 ## 集成方式
 
-Implementation 'com.tech:playinsdk:1.0.2'。
+implementation 'com.tech:playinsdk:1.0.2'。
 
 ## 使用方法
 
