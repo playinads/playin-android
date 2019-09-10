@@ -3,7 +3,7 @@ package com.tech.playinsdk.util;
 import java.io.Closeable;
 import java.io.IOException;
 
-public class Tool {
+public class Common {
 
     public static void closeStream(Closeable... closeables) {
         for (Closeable stream: closeables) {

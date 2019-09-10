@@ -1,4 +1,6 @@
-package com.tech.playinsdk.http;
+package com.tech.playinsdk.listener;
+
+import com.tech.playinsdk.http.HttpException;
 
 public interface HttpListener<T> {
 

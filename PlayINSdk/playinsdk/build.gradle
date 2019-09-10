@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.0.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -44,7 +44,7 @@ publish {
     userOrg = 'zhangliucheng'
     groupId = 'com.tech'
     artifactId = 'playinsdk'
-    publishVersion = '1.0.1'
+    publishVersion = '1.0.4'
     desc = 'PlayIN ADs -The Next Generation Playable ADs Solution'
     website = 'https://github.com/playinads'
 }

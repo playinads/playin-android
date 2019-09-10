@@ -5,9 +5,9 @@ import com.tech.playinsdk.model.entity.Config;
 import com.tech.playinsdk.model.entity.PlayInfo;
 import com.tech.playinsdk.http.HttpException;
 import com.tech.playinsdk.http.HttpHelper;
-import com.tech.playinsdk.http.HttpListener;
+import com.tech.playinsdk.listener.HttpListener;
 import com.tech.playinsdk.util.Constants;
-import com.tech.playinsdk.util.PILog;
+import com.tech.playinsdk.util.PlayLog;
 
 import org.json.JSONObject;
 
@@ -142,12 +142,12 @@ public class ApiService {
                 new HttpListener<JSONObject>() {
                     @Override
                     public void success(JSONObject result) {
-                        PILog.e("[PIReport] report success ");
+                        PlayLog.e("[PIReport] report success ");
                     }
 
                     @Override
                     public void failure(HttpException e) {
-                        PILog.e("[PIReport] endplay report error: " + e);
+                        PlayLog.e("[PIReport] endplay report error: " + e);
                     }
                 });
     }

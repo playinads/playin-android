@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.tech.playinsdk.BuildConfig;
 
-public class PILog {
+public class PlayLog {
 
     private static final String sTAG = "PLAYIN";
 

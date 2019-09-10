@@ -22,6 +22,14 @@ public class PlayInfo {
     private int deviceHeight;
     private int osType;
 
+    private String audience;
+    private String appName;
+    private String appIcon;
+    private int appRate;
+    private int commentsCount;
+    private int downloadsCount;
+    private String copywriting;
+
     public String getToken() {
         return token;
     }
@@ -159,6 +167,62 @@ public class PlayInfo {
     }
 
 
+    public String getAudience() {
+        return audience;
+    }
+
+    public void setAudience(String audience) {
+        this.audience = audience;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
+
+    public String getAppIcon() {
+        return appIcon;
+    }
+
+    public void setAppIcon(String appIcon) {
+        this.appIcon = appIcon;
+    }
+
+    public int getAppRate() {
+        return appRate;
+    }
+
+    public void setAppRate(int appRate) {
+        this.appRate = appRate;
+    }
+
+    public int getCommentsCount() {
+        return commentsCount;
+    }
+
+    public void setCommentsCount(int commentsCount) {
+        this.commentsCount = commentsCount;
+    }
+
+    public int getDownloadsCount() {
+        return downloadsCount;
+    }
+
+    public void setDownloadsCount(int downloadsCount) {
+        this.downloadsCount = downloadsCount;
+    }
+
+    public String getCopywriting() {
+        return copywriting;
+    }
+
+    public void setCopywriting(String copywriting) {
+        this.copywriting = copywriting;
+    }
+
     public static PlayInfo jsonToPlayInfo(JSONObject obj) {
         PlayInfo playInfo = new PlayInfo();
         playInfo.setServerIp(obj.optString("stream_server_ip"));
@@ -175,6 +239,15 @@ public class PlayInfo {
         playInfo.setDeviceWidth(obj.optInt("device_width"));
         playInfo.setDeviceHeight(obj.optInt("device_height"));
         playInfo.setPlaynowOffset(obj.optString("playnow_offset"));
+
+        playInfo.setAudience(obj.optString("audience"));
+        playInfo.setAppName(obj.optString("app_name"));
+        playInfo.setAppIcon(obj.optString("icon_url"));
+        playInfo.setAppRate(obj.optInt("app_rate"));
+        playInfo.setCommentsCount(obj.optInt("comments_count"));
+        playInfo.setDownloadsCount(obj.optInt("downloads"));
+        playInfo.setCopywriting(obj.optString("copywriting"));
+
         return playInfo;
     }
 }

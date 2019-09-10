@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 import static android.media.MediaFormat.MIMETYPE_VIDEO_AVC;
 
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-public class MediaDecoder extends BaseDecoder {
+public class MediaDecoder extends VideoDecoder {
 
     private MediaCodec mediaCodec;
     private MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();

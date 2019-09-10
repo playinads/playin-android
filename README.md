@@ -35,7 +35,7 @@ PlayIN aims for the global market. An entity in Hong Kong has been established t
 
 ## Integration
 
-implementation 'com.tech:playinsdk:1.0.2'
+implementation 'com.tech:playinsdk:1.0.4'
 
 ## Usage guide
 
@@ -98,15 +98,9 @@ For two demos, after the first demo, a page will be prompted for users to choose
 
   private void playGame() {
         String adId = "";
-        String appName = "";
-        String appIcon = "";
-        String appCover = "";
-        String appDownload = "";
         int playDuration = 0;
-        int playTime = 0;
         PlayInView playView = findViewById(R.id.playView);
-        playView.play(adId, appName, appIcon, appCover, appDownload,
-                playDuration, playTime, this);
+        playView.play(adId, playDuration, this);
     }
 ```
 #### Step 4

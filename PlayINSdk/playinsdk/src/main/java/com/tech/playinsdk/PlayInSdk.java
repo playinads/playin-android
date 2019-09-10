@@ -2,13 +2,13 @@ package com.tech.playinsdk;
 
 import com.tech.playinsdk.http.HttpException;
 import com.tech.playinsdk.http.HttpHelper;
-import com.tech.playinsdk.http.HttpListener;
+import com.tech.playinsdk.listener.HttpListener;
 import com.tech.playinsdk.listener.InitListener;
 import com.tech.playinsdk.model.ApiService;
 import com.tech.playinsdk.model.entity.Advert;
 import com.tech.playinsdk.model.entity.Config;
 import com.tech.playinsdk.model.entity.PlayInfo;
-import com.tech.playinsdk.util.PILog;
+import com.tech.playinsdk.util.PlayLog;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class PlayInSdk {
     private Config configData;
 
     public void setDebug(boolean debug) {
-        PILog.DEBUG = debug;
+        PlayLog.DEBUG = debug;
     }
 
     public String getApiHost() {
@@ -62,7 +62,7 @@ public class PlayInSdk {
 
                     @Override
                     public void failure(HttpException ex) {
-                        PILog.e("[PlayIn] auth: internal onPlayError: " + ex);
+                        PlayLog.e("[PlayIn] auth: internal onPlayError: " + ex);
                         initListener.failure(new Exception("[PlayIn] auth: internal onPlayError"));
                     }
                 });
@@ -70,7 +70,7 @@ public class PlayInSdk {
 
             @Override
             public void failure(HttpException ex) {
-                PILog.e("[PlayIn] configureWithKey: internal onPlayError: " + ex);
+                PlayLog.e("[PlayIn] configureWithKey: internal onPlayError: " + ex);
                 initListener.failure(new Exception("[PlayIn] configureWithKey: internal  onPlayError"));
             }
         });
