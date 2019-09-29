@@ -8,6 +8,7 @@ import com.tech.playinsdk.model.ApiService;
 import com.tech.playinsdk.model.entity.Advert;
 import com.tech.playinsdk.model.entity.Config;
 import com.tech.playinsdk.model.entity.PlayInfo;
+import com.tech.playinsdk.util.Constants;
 import com.tech.playinsdk.util.PlayLog;
 
 import java.util.List;
@@ -21,10 +22,6 @@ public class PlayInSdk {
 
     private String sdkKey;
     private Config configData;
-
-    public void setDebug(boolean debug) {
-        PlayLog.DEBUG = debug;
-    }
 
     public String getApiHost() {
         if (null != configData) {
@@ -40,7 +37,7 @@ public class PlayInSdk {
      */
     public void configWithKey(final String sdkKey, final InitListener initListener) {
         if (null == sdkKey || sdkKey.isEmpty()) {
-            initListener.failure(new Exception("[PlayIn] configureWithKey: invalid key"));
+            initListener.failure(new Exception("configureWithKey: invalid key"));
             return;
         }
         this.sdkKey = sdkKey;
@@ -49,7 +46,7 @@ public class PlayInSdk {
             public void success(final Config cf) {
                 String host = cf.getHost();
                 if (host == null || host.isEmpty()) {
-                    initListener.failure(new Exception("[PlayIn] auth: invalid host"));
+                    initListener.failure(new Exception("auth: invalid host"));
                     return;
                 }
                 ApiService.userAuth(cf.getHost(), sdkKey, new HttpListener<String>() {
@@ -62,16 +59,16 @@ public class PlayInSdk {
 
                     @Override
                     public void failure(HttpException ex) {
-                        PlayLog.e("[PlayIn] auth: internal onPlayError: " + ex);
-                        initListener.failure(new Exception("[PlayIn] auth: internal onPlayError"));
+                        PlayLog.e("auth: internal onPlayError: " + ex);
+                        initListener.failure(new Exception("auth: internal onPlayError"));
                     }
                 });
             }
 
             @Override
             public void failure(HttpException ex) {
-                PlayLog.e("[PlayIn] configureWithKey: internal onPlayError: " + ex);
-                initListener.failure(new Exception("[PlayIn] configureWithKey: internal  onPlayError"));
+                PlayLog.e("configureWithKey: internal onPlayError: " + ex);
+                initListener.failure(new Exception("configureWithKey: internal  onPlayError"));
             }
         });
     }
@@ -113,5 +110,15 @@ public class PlayInSdk {
 
     private void setHttpHelperSessionKey(String sessionKey) {
         HttpHelper.obtian().setSessionKey(sessionKey);
+    }
+
+    public PlayInSdk setLog(boolean flag) {
+        PlayLog.DEBUG = flag;
+        return this;
+    }
+
+    public PlayInSdk setTest(boolean flag) {
+        Constants.TEST = flag;
+        return this;
     }
 }

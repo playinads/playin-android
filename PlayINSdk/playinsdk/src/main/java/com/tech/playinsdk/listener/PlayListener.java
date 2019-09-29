@@ -6,4 +6,5 @@ public interface PlayListener {
     void onPlayClose();
     void onPlayError(Exception ex);
     void onPlayDownload(String url);
+    void onPlayForceTime();         // 强制试玩
 }

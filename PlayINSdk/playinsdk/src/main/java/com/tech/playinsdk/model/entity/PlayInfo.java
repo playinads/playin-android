@@ -20,7 +20,7 @@ public class PlayInfo {
     private String webviewDevUrl;
     private int deviceWidth;
     private int deviceHeight;
-    private int osType;
+    private int osType;             // 1 ios， 2 android
 
     private String audience;
     private String appName;
@@ -247,6 +247,7 @@ public class PlayInfo {
         playInfo.setCommentsCount(obj.optInt("comments_count"));
         playInfo.setDownloadsCount(obj.optInt("downloads"));
         playInfo.setCopywriting(obj.optString("copywriting"));
+        playInfo.setOsType(obj.optInt("os_type"));
 
         return playInfo;
     }

@@ -12,20 +12,20 @@ public class PlayLog {
 
     public static void v(String message) {
         if (DEBUG) {
-            Log.v(sTAG, message);
+            Log.v(sTAG, "[PlayIn] " + message);
         }
     }
 
     public static void i(String message) {
-        Log.i(sTAG, message);
+        Log.i(sTAG, "[PlayIn] " + message);
     }
 
     public static void d(String message) {
-        Log.d(sTAG, message);
+        Log.d(sTAG, "[PlayIn] " + message);
     }
 
     public static void e(String message) {
-        Log.e(sTAG, message);
+        Log.e(sTAG, "[PlayIn] " + message);
     }
 }
 

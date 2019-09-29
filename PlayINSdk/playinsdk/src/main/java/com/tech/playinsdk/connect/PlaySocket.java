@@ -6,6 +6,7 @@ import com.tech.playinsdk.util.PlayLog;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -85,7 +86,8 @@ public abstract class PlaySocket extends Thread {
     public void run() {
         PlayLog.v("Socket begin to connect  ip: " + ip + " port:" + port);
         try {
-            socket = new Socket(ip, port);
+            socket = new Socket();
+            socket.connect(new InetSocketAddress(ip, port), 5000);
             socket.setSoTimeout(0);
             socket.setReceiveBufferSize(100 * 1024);
             socket.setSendBufferSize(1024);

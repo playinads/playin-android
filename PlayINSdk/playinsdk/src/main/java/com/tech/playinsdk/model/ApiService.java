@@ -18,7 +18,7 @@ import java.util.Map;
 public class ApiService {
 
     public static void config(final HttpListener<Config> listener) {
-        HttpHelper.obtian().doGet(Constants.HOST + "/config", null, new HttpListener<JSONObject>() {
+        HttpHelper.obtian().doGet(Constants.getConfigHost(), null, new HttpListener<JSONObject>() {
             @Override
             public void success(JSONObject result) {
                 String host = result.optString("host");

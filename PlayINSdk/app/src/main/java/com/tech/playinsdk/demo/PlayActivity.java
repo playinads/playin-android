@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.tech.playinsdk.PlayInView;
+import com.tech.playinsdk.http.HttpException;
 import com.tech.playinsdk.listener.PlayListener;
 import com.tech.playinsdk.util.PlayLog;
 
@@ -42,7 +43,10 @@ public class PlayActivity extends AppCompatActivity implements PlayListener {
     @Override
     public void onPlayError(Exception ex) {
         PlayLog.e("onPlayError " + ex);
-        showErrorDialog();
+
+        if (ex instanceof HttpException) {
+            showErrorDialog(ex.getMessage());
+        }
     }
 
     @Override
@@ -62,6 +66,11 @@ public class PlayActivity extends AppCompatActivity implements PlayListener {
         }
     }
 
+    @Override
+    public void onPlayForceTime() {
+        PlayLog.e("强制试玩时间结束");
+    }
+
     private void hideLoading() {
         runOnUiThread(new Runnable() {
             @Override
@@ -71,9 +80,10 @@ public class PlayActivity extends AppCompatActivity implements PlayListener {
         });
     }
 
-    private void showErrorDialog() {
+    private void showErrorDialog(String title) {
         if (isFinishing()) return;
         AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(title)
                 .setMessage("Exception, click confirm to return")
                 .setPositiveButton("confirm", new DialogInterface.OnClickListener() {
                     @Override

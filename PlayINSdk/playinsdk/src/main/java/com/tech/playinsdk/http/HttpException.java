@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 public class HttpException extends Exception {
@@ -42,7 +43,7 @@ public class HttpException extends Exception {
             this.message = ex.getMessage();
             return;
         }
-        if (ex instanceof UnknownHostException || ex instanceof ConnectException) {
+        if (ex instanceof UnknownHostException || ex instanceof ConnectException || ex instanceof SocketTimeoutException) {
             this.code = -2;
             this.message = "network connection error";
         } else if (ex instanceof JSONException) {
