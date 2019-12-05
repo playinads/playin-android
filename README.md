@@ -96,9 +96,8 @@ For two demos, after the first demo, a page will be prompted for users to choose
 
   private void playGame() {
         String adId = "";
-        int playDuration = 0;
         PlayInView playView = findViewById(R.id.playView);
-        playView.play(adId, playDuration, this);
+        playView.play(adId, this);
     }
 ```
 #### Step 4
@@ -110,7 +109,7 @@ public class PlayActivity implements PlayListener {
         // can hide loading
     }
     @Override
-    public void onPlayClose() {
+    public void onPlayFinish() {
         //  can finish at play over
     }
     @Override
