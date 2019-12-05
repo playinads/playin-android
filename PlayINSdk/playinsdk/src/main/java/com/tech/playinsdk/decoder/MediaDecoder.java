@@ -1,6 +1,7 @@
 package com.tech.playinsdk.decoder;
 
 import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -17,15 +18,19 @@ public class MediaDecoder extends VideoDecoder {
     private MediaCodec mediaCodec;
     private MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
 
-    public MediaDecoder(int videoWidth, int videoHeight) {
-        super(videoWidth, videoHeight);
+    public MediaDecoder(int videoWidth, int videoHeight, int videoRotate) {
+        super(videoWidth, videoHeight, videoRotate);
     }
 
     @Override
-    protected boolean initDecoder(int videoWidth, int videoHeight, Surface surface) {
+    protected boolean initDecoder(Surface surface) {
         try {
-            MediaFormat format = MediaFormat.createVideoFormat(MIMETYPE_VIDEO_AVC, videoWidth, videoHeight);
-            format.setInteger(MediaFormat.KEY_FRAME_RATE, 20);
+            MediaFormat format = MediaFormat.createVideoFormat(MIMETYPE_VIDEO_AVC, 360, 640);
+
+            format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+            format.setInteger(MediaFormat.KEY_BIT_RATE, 6000000);
+            format.setInteger(MediaFormat.KEY_FRAME_RATE, 15);
+            format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 60 * 60 * 24 * 100);
 
             byte[] header_sps = {0, 0, 0, 1, 39, 77, 0, 30, -85, 64, -64, 42, -14, -38};
             byte[] header_pps = {0, 0, 0, 1, 40, -18, 60, 48};
@@ -59,11 +64,11 @@ public class MediaDecoder extends VideoDecoder {
             } else {
                 mediaCodec.queueInputBuffer(inputBufferIndex, 0, length, 0, 0);
             }
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Thread.sleep(20);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
         int outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 100);
         while (outputBufferIndex >= 0) {
@@ -82,5 +87,10 @@ public class MediaDecoder extends VideoDecoder {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public void updateRotate(int videoRotate) {
+
     }
 }

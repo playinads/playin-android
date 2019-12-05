@@ -52,9 +52,7 @@ public abstract class PlaySocket extends Thread {
                 socket.shutdownInput();
                 socket.close();
             }
-        } catch (Exception e) {
-//            e.printStackTrace();
-        }
+        } catch (Exception e) { }
         if (null != mWriteThread) {
             mWriteThread.interrupt();
         }
@@ -84,7 +82,7 @@ public abstract class PlaySocket extends Thread {
 
     @Override
     public void run() {
-        PlayLog.v("Socket begin to connect  ip: " + ip + " port:" + port);
+        PlayLog.v("PlaySocket begin to connect  ip: " + ip + " port:" + port);
         try {
             socket = new Socket();
             socket.connect(new InetSocketAddress(ip, port), 5000);
@@ -92,7 +90,7 @@ public abstract class PlaySocket extends Thread {
             socket.setReceiveBufferSize(100 * 1024);
             socket.setSendBufferSize(1024);
             socket.setTcpNoDelay(true);
-            PlayLog.v("Socket connect successed");
+            PlayLog.v("PlaySocket connect successed");
             onOpen();
             istream = socket.getInputStream();
             ostream = socket.getOutputStream();
@@ -102,7 +100,7 @@ public abstract class PlaySocket extends Thread {
             // 读取数据流(循环阻塞)
             readData();
         } catch (SocketException ex) {
-            PlayLog.e("Socket connect error： " + ex);
+            PlayLog.e("PlaySocket connect error： " + ex);
             onError(ex);
         } catch (IOException ex) {
             onError(ex);
@@ -138,7 +136,7 @@ public abstract class PlaySocket extends Thread {
                 }
             } catch (InterruptedException e) {
             } catch (IOException e) {
-                PlayLog.e("Socket send error： " + e);
+                PlayLog.e("PlaySocket send error： " + e);
                 onError(e);
             }
         }

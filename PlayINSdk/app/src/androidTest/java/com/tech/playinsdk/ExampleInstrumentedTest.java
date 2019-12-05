@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.tech.playinsdk.test", appContext.getPackageName());
+        assertEquals("com.tech.playinsdk", appContext.getPackageName());
     }
 }

@@ -8,7 +8,7 @@ public class PlayLog {
 
     private static final String sTAG = "PLAYIN";
 
-    public static boolean DEBUG = true;
+    public static boolean DEBUG = false;
 
     public static void v(String message) {
         if (DEBUG) {

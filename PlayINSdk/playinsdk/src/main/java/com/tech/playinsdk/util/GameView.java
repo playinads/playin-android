@@ -3,7 +3,9 @@ package com.tech.playinsdk.util;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.media.AudioFormat;
+import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -12,12 +14,16 @@ import android.view.SurfaceView;
 import com.tech.playinsdk.connect.PlaySocket;
 import com.tech.playinsdk.decoder.AudioDecoder;
 import com.tech.playinsdk.decoder.FFmpegDecoder;
+import com.tech.playinsdk.decoder.MediaDecoder;
 import com.tech.playinsdk.decoder.VideoDecoder;
 import com.tech.playinsdk.http.HttpException;
 import com.tech.playinsdk.model.entity.PlayInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.SocketException;
 
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback, VideoDecoder.DecoderListener {
@@ -28,8 +34,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
     }
 
     private final Handler handler = new Handler();
-    private final StringBuilder controlBuilder = new StringBuilder();
-
     private VideoDecoder videodecoder;
     private AudioDecoder audioDecoder;
 
@@ -37,6 +41,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
     private PlayInfo playInfo;
     private PlaySocket playSocket;
     private int visibility;
+    private boolean audioOn = true;
 
     public GameView(Context context) {
         super(context);
@@ -46,6 +51,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
+    }
+
+    public void setAudioState(boolean on) {
+        this.audioOn = on;
     }
 
     private void init() {
@@ -59,21 +68,53 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
         this.playListener = listener;
         playSocket = new MyPlaySocket(playInfo.getServerIp(), playInfo.getServerPort());
         playSocket.connect();
+        initAudioDecoder();
+        initVideoDecoder();
+    }
 
+    public void disconnect() {
+        try {
+            if (null != playSocket) playSocket.disConnect();
+            if (null != videodecoder) videodecoder.stop();
+            if (null != audioDecoder) audioDecoder.stop();
+        } catch (Exception ex) {
+            PlayLog.e("GameView disconnect  exception :" + ex);
+        }
+    }
+
+
+    public void sendVideoQuality(int quality) {
+        try {
+            JSONObject obj = new JSONObject();
+            obj.put("video_quality", quality);
+            playSocket.sendStream(Constants.PacketType.STREAM, Constants.StreamType.PARAMS, obj.toString());
+        } catch (Exception ex) {
+            PlayLog.e("GameView sendVideoQuality  exception :" + ex);
+        }
+    }
+
+    private void initAudioDecoder() {
         audioDecoder = new AudioDecoder();
         audioDecoder.start();
+    }
 
+    private void initVideoDecoder() {
         int width = playInfo.getDeviceWidth();
         int height = playInfo.getDeviceHeight();
-
-        if (playInfo.getOsType() == 2 && playInfo.getOrientation() == 1) {
-            // android 设备端 并且是 横屏
-            width = playInfo.getDeviceHeight();
-            height = playInfo.getDeviceWidth();
+        int rotate = 0;
+        // 横屏
+        if (playInfo.getOrientation() == 1) {
+            if (playInfo.getOsType() == 1) {
+                // ios 设备端
+                rotate = 270;
+            } else if (playInfo.getOsType() == 2) {
+                // android 设备端
+                width = playInfo.getDeviceHeight();
+                height = playInfo.getDeviceWidth();
+            }
         }
-
-        videodecoder = new FFmpegDecoder(width, height);
-//        videodecoder = new MediaDecoder(playInfo.getDeviceWidth(), playInfo.getDeviceHeight());
+        videodecoder = new FFmpegDecoder(width, height, rotate);
+//        videodecoder = new MediaDecoder(width, height, rotate);
         videodecoder.setDecoderListener(this);
         videodecoder.start();
     }
@@ -124,79 +165,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-//        float rateWidth = event.getX() / getWidth();
-//        float rateHeight = event.getY() / getHeight();
-//
-//        int action = event.getAction();  // 0 down, 1 up, 2 move
-//        // 目标触摸 0-down,1-move,2-up
-//        if (action == 1) {
-//            action = 2;
-//        } else if (action == 2) {
-//            action = 1;
-//        }
-//        controlBuilder.delete(0, controlBuilder.length());
-//        controlBuilder.append(rateWidth).append("_")
-//                .append(rateHeight).append("_")
-//                .append(action)
-//                .append("_0_0");
-//        sendControl(event.getPointerCount(), controlBuilder.toString());
-
-        int action = event.getActionMasked();
-        int pointerCount = event.getPointerCount();
-        MotionEvent.PointerProperties[] pps = new MotionEvent.PointerProperties[pointerCount];
-        MotionEvent.PointerCoords[] pcs = new MotionEvent.PointerCoords[pointerCount];
-        for (int i = 0; i < pointerCount; i ++) {
-            MotionEvent.PointerProperties pp = new MotionEvent.PointerProperties();
-            event.getPointerProperties(i, pp);
-            pps[i] = pp;
-            MotionEvent.PointerCoords pc = new MotionEvent.PointerCoords();
-            event.getPointerCoords(i, pc);
-            pcs[i] = pc;
+        String conStr = TouchUtil.processTouchEvent(event, getWidth(), getHeight(), playInfo);
+        if (null != conStr) {
+            playSocket.sendControl(conStr);
         }
-        GameEvent gameEvent = new GameEvent();
-
-        // 兼容ios
-        if (action == 1) {
-            action = 2;
-        } else if (action == 2) {
-            action = 1;
-        }
-        gameEvent.action = action;
-        gameEvent.pointerCount = pointerCount;
-        gameEvent.properties = pps;
-        gameEvent.coords = pcs;
-        String conStr = convertGameEvent(gameEvent);
-        playSocket.sendControl(conStr);
         return true;
     }
-
-//    private void sendControl(int finger, String control) {
-//        if (null != playSocket && playSocket.isConnected()) {
-//            try {
-//                JSONObject obj = new JSONObject();
-//                obj.put("" + finger, control);
-//                playSocket.sendControl(obj.toString());
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
-    private String convertGameEvent(GameEvent gameEvent) {
-        JSONObject obj = new JSONObject();
-        for (int i = 0; i < gameEvent.pointerCount; i++) {
-            try {
-                float rateWidth = gameEvent.coords[i].x / getWidth();
-                float rateHeight = gameEvent.coords[i].y / getHeight();
-                String control = rateWidth + "_" + rateHeight + "_" + gameEvent.action + "_0_0";
-                obj.put("" + gameEvent.properties[i].id, control);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        return obj.toString();
-    }
-
 
     private void sendUserContect() {
         try {
@@ -218,7 +192,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
                 try {
                     Thread.sleep(2000);
                     playSocket.sendStream(Constants.PacketType.STREAM, Constants.StreamType.ANDROID_VIDEO_START, "");
-
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -234,11 +207,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
 
         @Override
         public void onOpen() {
-            PlayLog.v("MyPlaySocket --> onMessage  onOpen " + playInfo.getOsType());
+            PlayLog.v("MyPlaySocket --> onMessage  onOpen ");
             sendUserContect();
-//            if (playInfo.getOsType() == 2) {
-                sendMessageToAndroid();
-//            }
+            sendMessageToAndroid();
         }
 
         @Override
@@ -281,7 +252,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
                 if (streamType == Constants.StreamType.H264) {
                     if (null != videodecoder) videodecoder.sendVideoData(buf);
                 } else if (streamType == Constants.StreamType.PCM) {
-                    if (null != audioDecoder) audioDecoder.sendAudioData(buf);
+                    if (null != audioDecoder && audioOn) audioDecoder.sendAudioData(buf);
                 }
             }
         }
@@ -289,7 +260,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
         @Override
         public void onError(Exception ex) {
             PlayLog.v("MyPlaySocket --> onError  " + ex);
-            invokeGameError(ex);
+            String msg = "Unknown exception";
+            if (ex instanceof IOException) {
+                msg = "Stream terminal";
+            } else if (ex instanceof SocketException) {
+                msg = "Socket connect exception";
+            }
+            invokeGameError(new Exception(msg));
         }
     }
 
@@ -318,12 +295,5 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
                 }
             }
         });
-    }
-
-    private class GameEvent {
-        int action;
-        int pointerCount;
-        MotionEvent.PointerProperties[] properties;
-        MotionEvent.PointerCoords[] coords;
     }
 }

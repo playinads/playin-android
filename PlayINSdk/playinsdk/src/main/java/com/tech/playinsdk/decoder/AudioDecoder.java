@@ -52,6 +52,7 @@ public class AudioDecoder implements Runnable {
         if (this.audioTrack != null) {
             audioTrack.stop();
             audioTrack.release();
+            audioTrack = null;
         }
         if (null != thread) {
             thread.interrupt();

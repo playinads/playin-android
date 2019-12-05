@@ -41,6 +41,7 @@ public class Constants {
         public final static byte H264 = 1;
         public final static byte AAC = 2;
         public final static byte PCM = 3;
+        public final static byte PARAMS = 4;
         public final static byte ANDROID_VIDEO_START = 6;
     }
 }

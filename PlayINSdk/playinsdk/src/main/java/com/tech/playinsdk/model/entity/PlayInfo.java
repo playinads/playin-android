@@ -8,7 +8,7 @@ public class PlayInfo {
     private String serverIp;
     private int serverPort;
     private int duration;
-    private int orientation;
+    private int orientation;        // 0 竖屏， 1 横屏
     private int closeX;
     private int closeY;
     private String appstoreUrl;
