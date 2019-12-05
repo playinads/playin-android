@@ -27,7 +27,7 @@ PlayIN Ads是一种新型的试玩广告技术，可以让用户在不安装APP�
 
 ## 集成方式
 
-implementation 'com.tech:playinsdk:1.1.2'
+implementation 'com.tech:playinsdk:1.1.6'
 
 ## 使用方法
 
@@ -81,7 +81,7 @@ duration为试玩总时长（应小于等于网站注册游戏时所购买的最
   private void playGame() {
         int playDuration = 120;
         PlayInView playView = findViewById(R.id.playView);
-        playView.play(adId, playDuration, this);
+        playView.play(adId, this);
     }
 ```
 #### 4 实现PlayIn的事件监听
@@ -92,7 +92,7 @@ public class PlayActivity implements PlayListener {
         // 可以隐藏加载框
     }
     @Override
-    public void onPlayClose() {
+    public void onPlayFinish() {
         // 试玩结束可以返回
     }
     @Override
