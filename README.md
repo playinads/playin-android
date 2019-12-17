@@ -29,11 +29,11 @@ PlayIN aims for the global market. An entity in Hong Kong has been established t
 ## Development Requirements
 
 * Android Studio
-* Android 4.0.3+
+* Android 5.0+
 
 ## Integration
 
-implementation 'com.tech:playinsdk:1.1.6'
+implementation 'com.tech:playinsdk:1.1.8'
 
 ## Usage guide
 
