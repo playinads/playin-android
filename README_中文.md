@@ -23,11 +23,11 @@ PlayIN Ads是一种新型的试玩广告技术，可以让用户在不安装APP�
 ## 开发要求
 
 * Android Studio
-* Android 4.0.3+
+* Android 5.0+
 
 ## 集成方式
 
-implementation 'com.tech:playinsdk:1.1.6'
+implementation 'com.tech:playinsdk:1.1.8'
 
 ## 使用方法
 
