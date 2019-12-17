@@ -3,9 +3,7 @@ package com.tech.playinsdk.util;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.media.AudioFormat;
-import android.os.Build;
 import android.os.Handler;
-import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -84,6 +82,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
 
 
     public void sendVideoQuality(int quality) {
+        PlayLog.e("setVideoQuality  " + quality);
+
         try {
             JSONObject obj = new JSONObject();
             obj.put("video_quality", quality);

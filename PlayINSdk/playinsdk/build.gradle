@@ -5,14 +5,14 @@ android {
     compileSdkVersion 27
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 21
         targetSdkVersion 27
-        versionCode 12
-        versionName "1.1.6"
+        versionCode 13
+        versionName "1.1.7"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++11 -frtti -fexceptions"
+                cppFlags "-std=c++11 -frtti -fexceptions -Wall -Wno-error=deprecated-declarations -Wno-deprecated-declarations"
                 arguments "-DANDROID_PLATFORM=android-21"
             }
         }
@@ -56,7 +56,7 @@ publish {
     userOrg = 'zhangliucheng'
     groupId = 'com.tech'
     artifactId = 'playinsdk'
-    publishVersion = '1.1.6'
+    publishVersion = '1.1.7'
     desc = 'PlayIN ADs -The Next Generation Playable ADs Solution'
     website = 'https://github.com/playinads'
 }

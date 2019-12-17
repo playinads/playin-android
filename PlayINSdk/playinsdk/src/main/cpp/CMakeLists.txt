@@ -36,7 +36,6 @@ target_link_libraries(
         libyuv
         ${CMAKE_SOURCE_DIR}/ffmpeg/libs/${ANDROID_ABI}/libavformat.a
         ${CMAKE_SOURCE_DIR}/ffmpeg/libs/${ANDROID_ABI}/libavcodec.a
-        ${CMAKE_SOURCE_DIR}/ffmpeg/libs/${ANDROID_ABI}/libswscale.a
         ${CMAKE_SOURCE_DIR}/ffmpeg/libs/${ANDROID_ABI}/libavutil.a
         ${log-lib}
 )

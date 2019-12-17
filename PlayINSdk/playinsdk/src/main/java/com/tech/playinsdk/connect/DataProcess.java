@@ -31,7 +31,7 @@ public class DataProcess {
     }
 
     public DataProcess() {
-        sendQueue = new ArrayBlockingQueue<>(20);
+        sendQueue = new ArrayBlockingQueue<>(100);
     }
 
 
@@ -80,7 +80,7 @@ public class DataProcess {
         System.arraycopy(msgIdBuf, 0, sendBytes, 9, msgIdBuf.length);
         // 内容
         System.arraycopy(contentBuf, 0, sendBytes, 11, contentBuf.length);
-        sendQueue.offer(sendBytes);
+        offerMessage(sendBytes);
     }
 
     // type(1字节) | 消息长度(4字节) | streamType(1字节) | 内容(n字节)
@@ -102,7 +102,13 @@ public class DataProcess {
         sendBytes[5] = streamType;
         // 内容
         System.arraycopy(contentBuf, 0, sendBytes, 6, contentBuf.length);
+        offerMessage(sendBytes);
+    }
+
+    private void offerMessage(byte[] sendBytes) {
         sendQueue.offer(sendBytes);
+//        boolean sendResult = sendQueue.offer(sendBytes);
+//        PlayLog.e("sendResult: " + sendResult + "   =======>  " + sendQueue.size());
     }
 
     private byte[] intToBytes(int num){

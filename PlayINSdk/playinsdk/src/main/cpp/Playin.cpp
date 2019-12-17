@@ -1,8 +1,10 @@
 //
 // Created by zhangliucheng on 2019-08-21.
 //
-
-#include <jni.h>
+//
+extern "C"{
+#include "ffmpeg/include/libavcodec/jni.h"
+}
 #include "FFmpeg.h"
 #include "PILog.h"
 
@@ -20,6 +22,13 @@ FFmpeg* getFFmpeg(JNIEnv *env, jobject instance) {
     jlong  handle = env->GetLongField(instance, field);
     FFmpeg *ffmpeg = reinterpret_cast<FFmpeg *>(handle);
     return ffmpeg;
+}
+
+extern "C"
+JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *res) {
+    //java虚拟机环境传递给ffmpeg
+//    av_jni_set_java_vm(vm, 0);
+    return JNI_VERSION_1_4;
 }
 
 extern "C"

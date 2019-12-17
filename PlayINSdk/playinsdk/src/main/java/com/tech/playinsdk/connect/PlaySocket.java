@@ -87,8 +87,8 @@ public abstract class PlaySocket extends Thread {
             socket = new Socket();
             socket.connect(new InetSocketAddress(ip, port), 5000);
             socket.setSoTimeout(0);
-            socket.setReceiveBufferSize(100 * 1024);
-            socket.setSendBufferSize(1024);
+            socket.setReceiveBufferSize(1024 * 1024);
+            socket.setSendBufferSize(32 * 1024);
             socket.setTcpNoDelay(true);
             PlayLog.v("PlaySocket connect successed");
             onOpen();

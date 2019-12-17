@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -67,7 +68,7 @@ public class PlayInView extends FrameLayout implements GameView.GameListener {
     }
 
     public void finish() {
-        playListener.onPlayFinish();
+        playListener.onPlayEnd(true);
         playEnd();
     }
 
@@ -94,7 +95,8 @@ public class PlayInView extends FrameLayout implements GameView.GameListener {
     }
 
     private void requestPlayInfo(String adid) {
-        PlayInSdk.getInstance().userActions(adid, new HttpListener<PlayInfo>() {
+        String androidId = Settings.System.getString(getContext().getContentResolver(), Settings.System.ANDROID_ID);
+        PlayInSdk.getInstance().userActions(adid, androidId, new HttpListener<PlayInfo>() {
             @Override
             public void success(PlayInfo result) {
                 if (isDetached) return;
@@ -109,7 +111,6 @@ public class PlayInView extends FrameLayout implements GameView.GameListener {
             }
         });
     }
-
 
     private void connectPlayIn(PlayInfo playInfo) {
         totalTime = playInfo.getDuration();
@@ -172,7 +173,7 @@ public class PlayInView extends FrameLayout implements GameView.GameListener {
                 if (totalTime > 0) {
                     getHandler().postDelayed(this, 1000);
                 } else {
-                    playListener.onPlayFinish();
+                    playListener.onPlayEnd(false);
                     playEnd();
                 }
             }
@@ -196,7 +197,7 @@ public class PlayInView extends FrameLayout implements GameView.GameListener {
 
     @Override
     public void onGameStart() {
-        playListener.onPlaystart();
+        playListener.onPlayStart(playInfo.getDuration());
         countTotalTime();
     }
 

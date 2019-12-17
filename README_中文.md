@@ -71,7 +71,6 @@ private void checkAvailable() {
 ```
 #### 3 在有可用机器的前提下，可以进行试玩
 
-duration为试玩总时长（应小于等于网站注册游戏时所购买的最大时长），单位以秒计时，times为试玩次数，最大试玩次数为2，例： duration = 120，times = 2，则分为两次试玩，单次试玩时间为60s，即单次试玩时间= duration / times，如果为两次试玩，则在第一次试玩结束后，页面会出现提示内容，用户可选择继续试玩或者是至GooglePlay下载App，在第二次试玩结束后，用户可选择至GooglePlay下载App或者关闭试玩。
 ```java
 <com.tech.playinsdk.PlayInView
   android:id="@+id/playView"
@@ -79,20 +78,20 @@ duration为试玩总时长（应小于等于网站注册游戏时所购买的最
   android:layout_height="match_parent" />
 
   private void playGame() {
-        int playDuration = 120;
         PlayInView playView = findViewById(R.id.playView);
         playView.play(adId, this);
+	      // playView.finish();
     }
 ```
 #### 4 实现PlayIn的事件监听
 ```objc
 public class PlayActivity implements PlayListener {
     @Override
-    public void onPlaystart() {
+    public void onPlayStart(int duration) {
         // 可以隐藏加载框
     }
     @Override
-    public void onPlayFinish() {
+    public void onPlayEnd(boolean manual) {
         // 试玩结束可以返回
     }
     @Override

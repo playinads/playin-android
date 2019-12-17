@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="quality">
+        <item>普清</item>
+        <item>高清</item>
+        <item>超清</item>
+    </string-array>
+</resources>

@@ -36,7 +36,7 @@ int FFmpeg::init(JNIEnv *env, jobject instance, jint width, jint height, jint ro
     pCodecCtx->codec_type = AVMEDIA_TYPE_VIDEO;
     int ret = avcodec_open2(pCodecCtx, pCodec, NULL);
     if (ret < 0) {
-        LOGE("%s","打开解码器失败  " + ret);
+        LOGE("%s %d","打开解码器失败", ret);
         return -1;
     }
     resetNativeWindow(env);

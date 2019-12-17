@@ -1,6 +1,7 @@
 package com.tech.playinsdk.demo;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -11,6 +12,7 @@ import com.tech.playinsdk.PlayInSdk;
 import com.tech.playinsdk.http.HttpException;
 import com.tech.playinsdk.listener.HttpListener;
 import com.tech.playinsdk.listener.InitListener;
+import com.tech.playinsdk.util.PlayLog;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 

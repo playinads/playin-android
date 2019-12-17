@@ -87,8 +87,8 @@ public class PlayInSdk {
      * @param adId
      * @param httpListener
      */
-    public void userActions(String adId, final HttpListener<PlayInfo> httpListener) {
-        ApiService.userActionsPlay(getApiHost(), adId, sdkKey, "", httpListener);
+    public void userActions(String adId, String deviceId, final HttpListener<PlayInfo> httpListener) {
+        ApiService.userActionsPlay(getApiHost(), adId, sdkKey, deviceId, httpListener);
     }
 
     /**

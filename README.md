@@ -82,12 +82,6 @@ private void checkAvailable() {
 ```
 #### Step 3
 
-Duration is the total length of game demo play (which should be no more than the maximum time set at registration on PlayIN). Units are timed in seconds. Times is the number of game demo plays. The maximum number of demo plays is 2. 
-
-For example: duration = 120, times = 2, it is divided into two demo plays. The single demo play time is 60s, that is, single demo play time = duration / times
-
-For two demos, after the first demo, a page will be prompted for users to choose between continue the demo or download App from GooglePlay. After the second demo, users can choose to download App from GooglePlay or close the demo.
-
 ```java
 <com.tech.playinsdk.PlayInView
   android:id="@+id/playView"
@@ -98,6 +92,7 @@ For two demos, after the first demo, a page will be prompted for users to choose
         String adId = "";
         PlayInView playView = findViewById(R.id.playView);
         playView.play(adId, this);
+		    // playView.finish();
     }
 ```
 #### Step 4
@@ -105,11 +100,11 @@ For two demos, after the first demo, a page will be prompted for users to choose
 ```java
 public class PlayActivity implements PlayListener {
     @Override
-    public void onPlaystart() {
+    public void onPlayStart(int duration) {
         // can hide loading
     }
     @Override
-    public void onPlayFinish() {
+    public void onPlayEnd(boolean manual) {
         //  can finish at play over
     }
     @Override

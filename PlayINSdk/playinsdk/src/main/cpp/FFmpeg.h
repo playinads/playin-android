@@ -11,7 +11,6 @@
 extern "C" {
 #include "ffmpeg/include/libavcodec/avcodec.h"
 #include "ffmpeg/include/libavformat/avformat.h"
-#include "ffmpeg/include/libswscale/swscale.h"
 #include "ffmpeg/include/libavutil/avutil.h"
 #include "ffmpeg/include/libavutil/frame.h"
 #include "ffmpeg/include/libavutil/imgutils.h"
@@ -34,7 +33,7 @@ private:
     AVCodecContext *pCodecCtx = NULL;
     AVCodec *pCodec;
     jobject surface;
-    int width, height, rotate, len, got_frame;
+    int width, height, rotate, got_frame;
 
     void resetNativeWindow(JNIEnv *env);
     AVFrame* processYuv(AVFrame *yuvFrame);
