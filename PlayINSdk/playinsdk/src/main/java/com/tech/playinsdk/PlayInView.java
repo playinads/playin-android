@@ -15,6 +15,7 @@ import com.tech.playinsdk.http.HttpException;
 import com.tech.playinsdk.listener.HttpListener;
 import com.tech.playinsdk.listener.PlayListener;
 import com.tech.playinsdk.model.entity.PlayInfo;
+import com.tech.playinsdk.util.Analyze;
 import com.tech.playinsdk.util.Constants;
 import com.tech.playinsdk.util.GameView;
 
@@ -77,7 +78,7 @@ public class PlayInView extends FrameLayout implements GameView.GameListener {
      * @param quality
      */
     public void setVideoQuality(int quality) {
-        if (null != gameView) gameView.sendVideoQuality(quality);
+        if (null != gameView) gameView.changeVideoQuality(quality);
     }
 
     /**
@@ -204,6 +205,7 @@ public class PlayInView extends FrameLayout implements GameView.GameListener {
     @Override
     public void onGameError(final Exception ex) {
         if (!isFinish) {
+            Analyze.getInstance().playError(ex);
             playListener.onPlayError(ex);
         }
         playEnd();

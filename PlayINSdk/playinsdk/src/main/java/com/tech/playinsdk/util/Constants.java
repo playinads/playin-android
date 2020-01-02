@@ -43,5 +43,9 @@ public class Constants {
         public final static byte PCM = 3;
         public final static byte PARAMS = 4;
         public final static byte ANDROID_VIDEO_START = 6;
+
+        public final static byte REPORT_RECEIVE = 12;
+        public final static byte REPORT_SEND = 13;
+
     }
 }

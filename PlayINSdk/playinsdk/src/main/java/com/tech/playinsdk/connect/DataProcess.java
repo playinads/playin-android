@@ -1,14 +1,11 @@
 package com.tech.playinsdk.connect;
 
 import com.tech.playinsdk.util.Constants;
-import com.tech.playinsdk.util.PlayLog;
-
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Process sending and receiving data.
@@ -17,28 +14,14 @@ public class DataProcess {
 
     public interface ReceiveCallback {
         void message(String message);
-
-        /**
-         * @param streamType StreamType.H264
-         * @param buf
-         */
-        void buffer(int streamType, byte[] buf);
+        void buffer(int streamType, byte[] timeBuf, byte[] streamBuf);
     }
-
-    private ArrayBlockingQueue<byte[]> sendQueue;
-    public ArrayBlockingQueue<byte[]> getSendQueue() {
-        return sendQueue;
-    }
-
-    public DataProcess() {
-        sendQueue = new ArrayBlockingQueue<>(100);
-    }
-
 
     private int type;
     private byte[] msgLengthBuf = new byte[4];
     private byte[] packetBuf = new byte[4];
     private byte[] msgIdBuf = new byte[2];
+    private byte[] timeBuf = new byte[4];
 
     public void receiveData(InputStream is, ReceiveCallback callback) throws IOException {
         DataInputStream dis = new DataInputStream(is);
@@ -47,23 +30,41 @@ public class DataProcess {
             dis.readFully(msgLengthBuf);
             int msgLength = bytesToInt(msgLengthBuf);
             if (type == Constants.PacketType.CONTROL) {
-                dis.readFully(packetBuf);
-                dis.readFully(msgIdBuf);
-                byte[] contentBuf = new byte[msgLength - packetBuf.length - msgIdBuf.length];
-                dis.readFully(contentBuf);
-                callback.message(new String(contentBuf));
-
+                processRecvText(dis, msgLength, callback);
             } else if (type == Constants.PacketType.STREAM) {
-                int streamType = dis.read();
-                byte[] streamBuf = new byte[msgLength - 1];
-                dis.readFully(streamBuf);
-                callback.buffer(streamType, streamBuf);
+                processRecvStream(dis, msgLength, callback);
             }
         }
     }
 
+    // 处理接受的字符串
+    private void processRecvText(DataInputStream dis, int msgLength, ReceiveCallback callback) throws IOException {
+        dis.readFully(packetBuf);
+        dis.readFully(msgIdBuf);
+        byte[] contentBuf = new byte[msgLength - packetBuf.length - msgIdBuf.length];
+        dis.readFully(contentBuf);
+        callback.message(new String(contentBuf));
+    }
+
+    // 处理接受的Stream流
+    private void processRecvStream(DataInputStream dis, int msgLength, ReceiveCallback callback) throws IOException {
+        int streamType = dis.read();
+        if (streamType == Constants.StreamType.REPORT_RECEIVE) {
+            // 带有4个字节的时间戳的视频流
+            dis.readFully(timeBuf);
+            byte[] streamBuf = new byte[msgLength - 1 - timeBuf.length];
+            dis.readFully(streamBuf);
+            callback.buffer(Constants.StreamType.H264, timeBuf, streamBuf);
+        } else {
+            // 不带时间戳的数据流
+            byte[] streamBuf = new byte[msgLength - 1];
+            dis.readFully(streamBuf);
+            callback.buffer(streamType, null, streamBuf);
+        }
+    }
+
     // type(1字节) | 消息长度(4字节) | packetBuf(4字节) | 消息id(2字节) | 内容(n字节)
-    public void sendText(String msg) {
+    public byte[] getSendText(String msg) {
         byte[] packetBuf = {0, 0, 0, 0};
         byte[] msgIdBuf = {2, 1};
         byte[] contentBuf = msg.getBytes();
@@ -80,17 +81,11 @@ public class DataProcess {
         System.arraycopy(msgIdBuf, 0, sendBytes, 9, msgIdBuf.length);
         // 内容
         System.arraycopy(contentBuf, 0, sendBytes, 11, contentBuf.length);
-        offerMessage(sendBytes);
-    }
-
-    // type(1字节) | 消息长度(4字节) | streamType(1字节) | 内容(n字节)
-    public void sendControl(String control) {
-        sendStream(Constants.PacketType.STREAM, Constants.StreamType.TOUCH, control);
+        return sendBytes;
     }
 
     // packType(1字节) | 消息长度(4字节) | streamType(1字节) | 内容(n字节)
-    public void sendStream(byte packType, byte streamType, String control) {
-        byte[] contentBuf = control.getBytes();
+    public byte[] getSendStream(byte packType, byte streamType, byte[] contentBuf) {
         byte[] msgLenBuf = intToBytes(1 + contentBuf.length);
         byte[] sendBytes = new byte[1 + msgLenBuf.length + 1 + contentBuf.length];
 
@@ -102,13 +97,7 @@ public class DataProcess {
         sendBytes[5] = streamType;
         // 内容
         System.arraycopy(contentBuf, 0, sendBytes, 6, contentBuf.length);
-        offerMessage(sendBytes);
-    }
-
-    private void offerMessage(byte[] sendBytes) {
-        sendQueue.offer(sendBytes);
-//        boolean sendResult = sendQueue.offer(sendBytes);
-//        PlayLog.e("sendResult: " + sendResult + "   =======>  " + sendQueue.size());
+        return sendBytes;
     }
 
     private byte[] intToBytes(int num){

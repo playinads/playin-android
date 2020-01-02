@@ -2,6 +2,8 @@ package com.tech.playinsdk.decoder;
 
 import android.view.Surface;
 
+import com.tech.playinsdk.util.Analyze;
+
 public class FFmpegDecoder extends VideoDecoder {
 
     static {
@@ -34,7 +36,11 @@ public class FFmpegDecoder extends VideoDecoder {
             return;
         }
         if (init) {
+            long start = System.currentTimeMillis();
             ffmpegDecoding(buf);
+            long end = System.currentTimeMillis();
+            int duration = (int) (end - start);
+            Analyze.getInstance().videoDecoder(duration);
         }
     }
 

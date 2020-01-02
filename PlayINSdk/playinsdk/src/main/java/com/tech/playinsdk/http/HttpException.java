@@ -61,6 +61,6 @@ public class HttpException extends Exception {
 
     @Override
     public String toString() {
-        return "[HttpException] " + message;
+        return message;
     }
 }

@@ -12,14 +12,11 @@ import android.view.SurfaceView;
 import com.tech.playinsdk.connect.PlaySocket;
 import com.tech.playinsdk.decoder.AudioDecoder;
 import com.tech.playinsdk.decoder.FFmpegDecoder;
-import com.tech.playinsdk.decoder.MediaDecoder;
 import com.tech.playinsdk.decoder.VideoDecoder;
 import com.tech.playinsdk.http.HttpException;
 import com.tech.playinsdk.model.entity.PlayInfo;
 
-import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.net.SocketException;
 
@@ -38,6 +35,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
     private GameListener playListener;
     private PlayInfo playInfo;
     private PlaySocket playSocket;
+    private int retryCount;
     private int visibility;
     private boolean audioOn = true;
 
@@ -64,10 +62,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
     public void startConnect(PlayInfo playInfo, GameListener listener) {
         this.playInfo = playInfo;
         this.playListener = listener;
-        playSocket = new MyPlaySocket(playInfo.getServerIp(), playInfo.getServerPort());
-        playSocket.connect();
         initAudioDecoder();
         initVideoDecoder();
+        connectSocket();
+    }
+
+    private void connectSocket() {
+        if (null != playSocket) {
+            playSocket.disConnect();
+        }
+        playSocket = new MyPlaySocket(playInfo.getServerIp(), playInfo.getServerPort());
+        playSocket.connect();
     }
 
     public void disconnect() {
@@ -77,19 +82,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
             if (null != audioDecoder) audioDecoder.stop();
         } catch (Exception ex) {
             PlayLog.e("GameView disconnect  exception :" + ex);
-        }
-    }
-
-
-    public void sendVideoQuality(int quality) {
-        PlayLog.e("setVideoQuality  " + quality);
-
-        try {
-            JSONObject obj = new JSONObject();
-            obj.put("video_quality", quality);
-            playSocket.sendStream(Constants.PacketType.STREAM, Constants.StreamType.PARAMS, obj.toString());
-        } catch (Exception ex) {
-            PlayLog.e("GameView sendVideoQuality  exception :" + ex);
         }
     }
 
@@ -172,31 +164,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
         return true;
     }
 
-    private void sendUserContect() {
-        try {
-            JSONObject obj = new JSONObject();
-            obj.put("token", playInfo.getToken());
-            obj.put("device_name", android.os.Build.BRAND);
-            obj.put("os_type", Constants.OS_TYPE);
-            obj.put("coder", "annex-b");  // 安卓annex-b, 苹果avcc
-            playSocket.sendText(obj.toString());
-        } catch (Exception ex) {
-            PlayLog.e("sendUserContect  exception :" + ex);
-        }
-    }
-
-    private void sendMessageToAndroid() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                    playSocket.sendStream(Constants.PacketType.STREAM, Constants.StreamType.ANDROID_VIDEO_START, "");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+    public void changeVideoQuality(int quality) {
+        PlayLog.e("changeVideoQuality  " + quality);
+        playSocket.sendVideoQuality(quality);
     }
 
     private class MyPlaySocket extends PlaySocket {
@@ -208,8 +178,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
         @Override
         public void onOpen() {
             PlayLog.v("MyPlaySocket --> onMessage  onOpen ");
-            sendUserContect();
-            sendMessageToAndroid();
+            sendUserInfo(playInfo.getToken());
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(2000);
+                        sendMessageToAndroid();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
         }
 
         @Override
@@ -217,37 +197,27 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
             PlayLog.v("MyPlaySocket --> onMessage  msg " + msg);
             try {
                 JSONObject object = new JSONObject(msg);
-                if (0 != object.optInt("code")) {
-                    invokeGameError(new HttpException(-1, object.optString("error")));
+                int code = object.optInt("code");
+                if (0 != code) {
+                    // 安卓设备，code=18继续重连
+                    if (isAttachedToWindow() && playInfo.getOsType() == 2 && retryCount < 6 && code == -18) {
+                        retryCount++;
+                        Thread.sleep(1600);
+                        connectSocket();
+                    } else {
+                        invokeGameError(new HttpException(code, object.optString("error")));
+                    }
+                } else {
+                    parserAudioConfig(object);
                 }
-
-                // ios 默认音频参数
-                int sampleRateInHz = 22050;
-                int channelConfig = AudioFormat.CHANNEL_CONFIGURATION_MONO;
-                int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
-                if (playInfo.getOsType() == 2) {
-                    // android 默认音频参数
-                    sampleRateInHz = 24000;
-                    channelConfig = 3;
-                    audioFormat = 2;
-                }
-                JSONObject streamInfo = object.optJSONObject("stream_info");
-                if (null != streamInfo) {
-                    sampleRateInHz = streamInfo.optInt("sample_rate");
-                    channelConfig = streamInfo.optInt("channels");
-                    int bps = streamInfo.optInt("bits_per_sample");
-                    if (bps == 16) audioFormat = AudioFormat.ENCODING_PCM_16BIT;
-                    else if (bps == 8) audioFormat = AudioFormat.ENCODING_PCM_8BIT;
-                }
-                audioDecoder.initAudioTrack(sampleRateInHz, channelConfig, audioFormat);
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
         @Override
         public void onMessage(int streamType, byte[] buf) {
-//            PlayLog.e("onMessage  " + streamType + " ====  " + buf.length);
+//            PlayLog.e("MyPlaySocket --> onMessage  " + streamType + " ====  " + buf.length);
             if (GameView.this.visibility == 0) {
                 if (streamType == Constants.StreamType.H264) {
                     if (null != videodecoder) videodecoder.sendVideoData(buf);
@@ -273,6 +243,32 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Vid
     @Override
     public void decoderSuccess() {
         invokeGameStart();
+    }
+
+    private void parserAudioConfig(JSONObject object) {
+        int sampleRateInHz, channelConfig, audioFormat;
+
+        if (playInfo.getOsType() == 1) {
+            // ios 默认音频参数
+            sampleRateInHz = 22050;
+            channelConfig = AudioFormat.CHANNEL_IN_MONO;
+            audioFormat = AudioFormat.ENCODING_PCM_16BIT;
+        } else {
+            // android 默认音频参数
+            sampleRateInHz = 48000;
+            channelConfig = AudioFormat.CHANNEL_IN_STEREO;
+            audioFormat = AudioFormat.ENCODING_PCM_16BIT;
+        }
+        // 如果流里面有音频参数，以流里面为准
+        JSONObject streamInfo = object.optJSONObject("stream_info");
+        if (null != streamInfo) {
+            sampleRateInHz = streamInfo.optInt("sample_rate");
+            channelConfig = streamInfo.optInt("channels");
+            int bps = streamInfo.optInt("bits_per_sample");
+            if (bps == 16) audioFormat = AudioFormat.ENCODING_PCM_16BIT;
+            else if (bps == 8) audioFormat = AudioFormat.ENCODING_PCM_8BIT;
+        }
+        audioDecoder.initAudioTrack(sampleRateInHz, channelConfig, audioFormat);
     }
 
     private void invokeGameStart() {

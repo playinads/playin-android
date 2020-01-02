@@ -3,6 +3,8 @@ package com.tech.playinsdk.decoder;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
+import com.tech.playinsdk.util.Analyze;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +64,8 @@ public abstract class VideoDecoder implements Runnable {
 
     public void sendVideoData(byte[] buf) {
         if (null != videoQueue) {
-            videoQueue.offer(buf);
+            boolean result = videoQueue.offer(buf);
+            Analyze.getInstance().receiveVideoResult(result);
         }
     }
 

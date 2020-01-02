@@ -1,14 +1,19 @@
 package com.tech.playinsdk.connect;
 
+import static com.tech.playinsdk.util.Constants.StreamType.*;
+import static com.tech.playinsdk.util.Constants.PacketType.*;
+import com.tech.playinsdk.util.Analyze;
 import com.tech.playinsdk.util.Common;
+import com.tech.playinsdk.util.Constants;
 import com.tech.playinsdk.util.PlayLog;
-
+import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Establish a connection.
@@ -23,17 +28,18 @@ public abstract class PlaySocket extends Thread {
     private String ip;
     private int port;
     private DataProcess dataProcess;
+    private ArrayBlockingQueue<byte[]> sendQueue;
 
     private Socket socket;
     private InputStream istream;
     private OutputStream ostream;
-
     private Thread mWriteThread;
 
     public PlaySocket(String ip, int port) {
         this.ip = ip;
         this.port = port;
         dataProcess = new DataProcess();
+        sendQueue = new ArrayBlockingQueue<>(200);
     }
 
     public boolean isConnected() {
@@ -46,6 +52,7 @@ public abstract class PlaySocket extends Thread {
 
     public void disConnect() {
         try {
+            sendQueue.clear();
             interrupt();
             if (null != socket) {
                 socket.shutdownOutput();
@@ -59,25 +66,53 @@ public abstract class PlaySocket extends Thread {
         Common.closeStream(istream, ostream);
     }
 
-    public void sendText(String text) {
-        dataProcess.sendText(text);
-    }
-
-    /**
-     * Send touch event.
-     * @param control
-     */
     public void sendControl(String control) {
-        dataProcess.sendControl(control);
+        byte[] buf = dataProcess.getSendStream(STREAM, TOUCH, control.getBytes());
+        offerMessage(buf);
     }
 
-    /**
-     * @param packType  1 control  2 byte stream
-     * @param streamType  0 touch  1 H264  2 audio  6 android
-     * @param control
-     */
-    public void sendStream(byte packType, byte streamType, String control) {
-        dataProcess.sendStream(packType, streamType, control);
+    public void sendVideoQuality(int quality) {
+        try {
+            JSONObject obj = new JSONObject();
+            obj.put("video_quality", quality);
+            byte[] buf = dataProcess.getSendStream(STREAM, PARAMS, obj.toString().getBytes());
+            offerMessage(buf);
+        } catch (Exception ex) {
+            PlayLog.e("PlaySocket changeVideoQuality  exception :" + ex);
+        }
+    }
+
+    public void sendUserInfo(String token) {
+        try {
+            JSONObject obj = new JSONObject();
+            obj.put("token", token);
+            obj.put("device_name", android.os.Build.BRAND);
+            obj.put("os_type", Constants.OS_TYPE);
+            obj.put("coder", "annex-b");  // 安卓annex-b, 苹果avcc
+            byte[] buf = dataProcess.getSendText(obj.toString());
+            offerMessage(buf);
+        } catch (Exception ex) {
+            PlayLog.e("sendUserContect  exception :" + ex);
+        }
+    }
+
+    public void sendMessageToAndroid() {
+        byte[] buf = dataProcess.getSendStream(STREAM, ANDROID_VIDEO_START, new byte[0]);
+        offerMessage(buf);
+    }
+
+    public void sendReportTime(byte[] timeBuf) {
+        byte[] buf = dataProcess.getSendStream(STREAM, REPORT_SEND, timeBuf);
+        offerMessage(buf, false);
+    }
+
+    private void offerMessage(byte[] sendBytes) {
+        this.offerMessage(sendBytes, true);
+    }
+
+    private void offerMessage(byte[] sendBytes, boolean analyze) {
+        boolean result = sendQueue.offer(sendBytes);
+        if (true) Analyze.getInstance().sendResult(result);
     }
 
     @Override
@@ -116,8 +151,11 @@ public abstract class PlaySocket extends Thread {
                 }
 
                 @Override
-                public void buffer(int streamType, byte[] buf) {
-                    onMessage(streamType, buf);
+                public void buffer(int streamType, byte[] timeBuf, byte[] streamBuf) {
+                    if (null != timeBuf) {
+                        sendReportTime(timeBuf);
+                    }
+                    onMessage(streamType, streamBuf);
                 }
             });
         } catch (IOException ex) {
@@ -130,7 +168,7 @@ public abstract class PlaySocket extends Thread {
         public void run() {
             try {
                 while (!isInterrupted()) {
-                    byte[] sendBuf = dataProcess.getSendQueue().take();
+                    byte[] sendBuf = sendQueue.take();
                     ostream.write(sendBuf);
                     ostream.flush();
                 }

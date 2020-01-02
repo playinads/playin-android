@@ -74,7 +74,7 @@ public class PlayActivity extends AppCompatActivity implements PlayListener {
 
     @Override
     public void onPlayError(Exception ex) {
-        PlayLog.e("onPlayEnd " + ex.toString());
+        PlayLog.e("onPlayError " + ex.toString());
         hideLoading();
         showDialog(ex.getMessage());
     }

@@ -151,4 +151,23 @@ public class ApiService {
                     }
                 });
     }
+
+    public static void analyze(String host, String token, String data) {
+        Map<String, String> params = new HashMap<>();
+        params.put("token", token);
+        params.put("event_name", "android_sdk");
+        params.put("data", data);
+        HttpHelper.obtian().doPost(host + "/analytics/event", params,
+                new HttpListener<JSONObject>() {
+                    @Override
+                    public void success(JSONObject result) {
+                        PlayLog.e("[PIAnalyze] report success ");
+                    }
+
+                    @Override
+                    public void failure(HttpException e) {
+                        PlayLog.e("[PIAnalyze] error: " + e);
+                    }
+                });
+    }
 }

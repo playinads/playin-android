@@ -33,7 +33,7 @@ PlayIN aims for the global market. An entity in Hong Kong has been established t
 
 ## Integration
 
-implementation 'com.tech:playinsdk:1.1.8'
+implementation 'com.tech:playinsdk:1.1.9'
 
 ## Usage guide
 
@@ -57,7 +57,6 @@ private void configPlayin() {
   PlayInSdk.getInstance().configWithKey(Constants.SDK_KEY, new InitListener() {
     @Override
     public void success() {
-      checkAvailable();
     }
     @Override
     public void failure(Exception ex) {

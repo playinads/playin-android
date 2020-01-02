@@ -75,9 +75,8 @@ public class HttpHelper {
                     }
                     deliverResult(url, listener, sb.toString());
                 } catch (Exception e) {
-                    PlayLog.v("deliverFailure:  " + url + "  " + e);
                     e.printStackTrace();
-                    deliverFailure(listener, new HttpException(e));
+                    deliverFailure(listener, url, new HttpException(e));
                 } finally {
                     connection.disconnect();
                     closeStream(is, br);
@@ -124,7 +123,7 @@ public class HttpHelper {
                     deliverResult(url, listener, sb.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
-                    deliverFailure(listener, new HttpException(e));
+                    deliverFailure(listener, url, new HttpException(e));
                 } finally {
                     connection.disconnect();
                     closeStream(is, br);
@@ -156,7 +155,7 @@ public class HttpHelper {
         if (result.getInt("code") == 0) {
             deliverSuccess(listener, result.optJSONObject("data"));
         } else {
-            deliverFailure(listener, new HttpException(result));
+            deliverFailure(listener, url, new HttpException(result));
         }
     }
 
@@ -169,7 +168,8 @@ public class HttpHelper {
         });
     }
 
-    private void deliverFailure(final HttpListener listener, final HttpException ex) {
+    private void deliverFailure(final HttpListener listener, String url, final HttpException ex) {
+        PlayLog.v("deliverFailure:  " + url + "  " + ex);
         sHandler.post(new Runnable() {
             @Override
             public void run() {

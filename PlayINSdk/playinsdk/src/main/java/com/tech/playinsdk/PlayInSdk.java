@@ -1,5 +1,7 @@
 package com.tech.playinsdk;
 
+import android.os.Build;
+
 import com.tech.playinsdk.http.HttpException;
 import com.tech.playinsdk.http.HttpHelper;
 import com.tech.playinsdk.listener.HttpListener;
@@ -8,8 +10,11 @@ import com.tech.playinsdk.model.ApiService;
 import com.tech.playinsdk.model.entity.Advert;
 import com.tech.playinsdk.model.entity.Config;
 import com.tech.playinsdk.model.entity.PlayInfo;
+import com.tech.playinsdk.util.Analyze;
 import com.tech.playinsdk.util.Constants;
 import com.tech.playinsdk.util.PlayLog;
+
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -89,6 +94,7 @@ public class PlayInSdk {
      */
     public void userActions(String adId, String deviceId, final HttpListener<PlayInfo> httpListener) {
         ApiService.userActionsPlay(getApiHost(), adId, sdkKey, deviceId, httpListener);
+        Analyze.getInstance().reset();
     }
 
     /**
@@ -106,6 +112,15 @@ public class PlayInSdk {
      */
     public void report(String token, String action) {
         ApiService.report(getApiHost(), token, action);
+        try {
+            JSONObject analyzeData = Analyze.getInstance().report();
+            analyzeData.put("phone", Build.BRAND + "-" + Build.MODEL);
+            analyzeData.put("version", Build.VERSION.RELEASE);
+            PlayLog.e("analyzeData =============>  " + analyzeData.toString());
+            ApiService.analyze(getApiHost(), token, analyzeData.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void setHttpHelperSessionKey(String sessionKey) {
