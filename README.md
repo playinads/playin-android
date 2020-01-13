@@ -54,7 +54,7 @@ Initialize and check if there is any device available with your sdkKey and adid:
 
 ```java
 private void configPlayin() {
-  PlayInSdk.getInstance().configWithKey(Constants.SDK_KEY, new InitListener() {
+  PlayInSdk.getInstance().confirmKey(Constants.SDK_KEY, new InitListener() {
     @Override
     public void success() {
     }
@@ -67,7 +67,7 @@ private void configPlayin() {
 
 // Check game can to play
 private void checkAvailable() {
-  PlayInSdk.getInstance().checkAvailable(Constants.SDK_KEY, new HttpListener<Boolean>() {
+  PlayInSdk.getInstance().confirmPlayableAd(Constants.SDK_KEY, new HttpListener<Boolean>() {
     @Override
     public void success(Boolean result) {
       // Jump to the play activity
@@ -90,7 +90,7 @@ private void checkAvailable() {
   private void playGame() {
         String adId = "";
         PlayInView playView = findViewById(R.id.playView);
-        playView.play(adId, this);
+        playView.establishConnection(adId, this);
 		    // playView.finish();
     }
 ```
@@ -99,15 +99,15 @@ private void checkAvailable() {
 ```java
 public class PlayActivity implements PlayListener {
     @Override
-    public void onPlayStart(int duration) {
+    public void didConnectSuccess(int duration) {
         // can hide loading
     }
     @Override
-    public void onPlayEnd(boolean manual) {
+    public void didDisconnect(boolean manual) {
         //  can finish at play over
     }
     @Override
-    public void onPlayError(Exception ex) {
+    public void didConnectFail(Exception ex) {
     }
 }
 ```

@@ -30,11 +30,39 @@ public class Analyze {
     }
 
     public JSONObject report() {
+        /*
+        phone		手机型号
+        version	    手机版本
+
+        recvSucc	接收视频总帧数
+        recvFail	丢弃视频帧数
+
+        sendSucc	发送手势总帧数
+        sendFail	丢弃手势帧数
+
+        vd1			解码区间 0_50
+        vd2			解码区间 50_100
+        vd3			解码区间 100_150
+        vd4			解码区间 150_max
+
+        errMsg		错误信息
+        */
+
         JSONObject obj = new JSONObject();
         try {
-            obj.put("recvStatus", recvVideoTotal + "-" + recvVideoFail);
-            obj.put("sendStatus", sendTotal + "-" + sendFail);
-            obj.put("vdStatus", vd_0_50 + "-" + vd_50_100 + "-" + vd_100_150 + "-" + vd_150_max);
+//            obj.put("recvStatus", recvVideoTotal + "-" + recvVideoFail);
+//            obj.put("sendStatus", sendTotal + "-" + sendFail);
+//            obj.put("vdStatus", vd_0_50 + "-" + vd_50_100 + "-" + vd_100_150 + "-" + vd_150_max);
+
+            obj.put("recvSucc", recvVideoTotal);
+            obj.put("recvFail", recvVideoFail);
+            obj.put("sendSucc", sendTotal);
+            obj.put("sendFail", sendFail);
+            obj.put("vd1", vd_0_50);
+            obj.put("vd2", vd_50_100);
+            obj.put("vd3", vd_100_150);
+            obj.put("vd4", vd_150_max);
+
             if (!TextUtils.isEmpty(errMsg)) {
                 obj.put("errMsg", errMsg);
             }

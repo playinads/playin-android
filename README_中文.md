@@ -27,7 +27,7 @@ PlayIN Ads是一种新型的试玩广告技术，可以让用户在不安装APP�
 
 ## 集成方式
 
-implementation 'com.tech:playinsdk:1.1.9'
+implementation 'com.tech:playinsdk:1.1.10'
 
 ## 使用方法
 
@@ -43,7 +43,7 @@ import com.tech.playinsdk.listener.InitListener;
 ```java
 // 初始化PlayIN的sdk
 private void configPlayin() {
-  PlayInSdk.getInstance().configWithKey(Constants.SDK_KEY, new InitListener() {
+  PlayInSdk.getInstance().confirmKey(Constants.SDK_KEY, new InitListener() {
     @Override
     public void success() {
     }
@@ -56,7 +56,7 @@ private void configPlayin() {
 
 // 检查游戏是否可以试玩
 private void checkAvailable() {
-  PlayInSdk.getInstance().checkAvailable(Constants.SDK_KEY, new HttpListener<Boolean>() {
+  PlayInSdk.getInstance().confirmPlayableAd(Constants.SDK_KEY, new HttpListener<Boolean>() {
     @Override
     public void success(Boolean result) {
      	// 跳转到试玩界面
@@ -78,7 +78,7 @@ private void checkAvailable() {
 
   private void playGame() {
         PlayInView playView = findViewById(R.id.playView);
-        playView.play(adId, this);
+        playView.establishConnection(adId, this);
 	      // playView.finish();
     }
 ```
@@ -86,15 +86,15 @@ private void checkAvailable() {
 ```objc
 public class PlayActivity implements PlayListener {
     @Override
-    public void onPlayStart(int duration) {
+    public void didConnectSuccess(int duration) {
         // 可以隐藏加载框
     }
     @Override
-    public void onPlayEnd(boolean manual) {
+    public void didDisconnect(boolean manual) {
         // 试玩结束可以返回
     }
     @Override
-    public void onPlayError(Exception ex) {
+    public void didConnectFail(Exception ex) {
     }
 }
 ```

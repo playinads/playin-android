@@ -36,11 +36,11 @@ public class PlayInSdk {
     }
 
     /**
-     * configWithKey.
+     * confirmKey.
      * @param sdkKey
      * @param initListener
      */
-    public void configWithKey(final String sdkKey, final InitListener initListener) {
+    public void confirmKey(final String sdkKey, final InitListener initListener) {
         if (null == sdkKey || sdkKey.isEmpty()) {
             initListener.failure(new Exception("configureWithKey: invalid key"));
             return;
@@ -64,16 +64,16 @@ public class PlayInSdk {
 
                     @Override
                     public void failure(HttpException ex) {
-                        PlayLog.e("auth: internal onPlayError: " + ex);
-                        initListener.failure(new Exception("auth: internal onPlayError"));
+                        PlayLog.e("auth: internal didConnectFail: " + ex);
+                        initListener.failure(new Exception("auth: internal didConnectFail"));
                     }
                 });
             }
 
             @Override
             public void failure(HttpException ex) {
-                PlayLog.e("configureWithKey: internal onPlayError: " + ex);
-                initListener.failure(new Exception("configureWithKey: internal  onPlayError"));
+                PlayLog.e("configureWithKey: internal didConnectFail: " + ex);
+                initListener.failure(new Exception("configureWithKey: internal  didConnectFail"));
             }
         });
     }
@@ -83,7 +83,7 @@ public class PlayInSdk {
      * @param adId
      * @param httpListener
      */
-    public void checkAvailable(final String adId, final HttpListener<Boolean> httpListener) {
+    public void confirmPlayableAd(final String adId, final HttpListener<Boolean> httpListener) {
         ApiService.userAvailable(getApiHost(), adId, httpListener);
     }
 

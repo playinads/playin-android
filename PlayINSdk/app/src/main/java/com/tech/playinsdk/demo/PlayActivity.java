@@ -50,7 +50,7 @@ public class PlayActivity extends AppCompatActivity implements PlayListener {
 
     private void playGame() {
         PlayInView playView = findViewById(R.id.playView);
-        playView.play(Constants.ADID, this);
+        playView.establishConnection(Constants.ADID, this);
 //        playView.setAudioState(true);
 //        playView.setAutoRotate(false);
     }
@@ -61,20 +61,20 @@ public class PlayActivity extends AppCompatActivity implements PlayListener {
     }
 
     @Override
-    public void onPlayStart(int duration) {
+    public void didConnectSuccess(int duration) {
         hideLoading();
-        PlayLog.e("onPlayStart");
+        PlayLog.e("didConnectSuccess");
     }
 
     @Override
-    public void onPlayEnd(boolean manual) {
-        PlayLog.e("onPlayEnd");
+    public void didDisconnect(boolean manual) {
+        PlayLog.e("didDisconnect");
         finish();
     }
 
     @Override
-    public void onPlayError(Exception ex) {
-        PlayLog.e("onPlayError " + ex.toString());
+    public void didConnectFail(Exception ex) {
+        PlayLog.e("didConnectFail " + ex.toString());
         hideLoading();
         showDialog(ex.getMessage());
     }

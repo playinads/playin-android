@@ -57,11 +57,11 @@ public class PlayInView extends FrameLayout implements GameView.GameListener {
         }, 200);
     }
 
-    public void play(String adid, PlayListener listener) {
-        this.play(adid, true, true, listener);
+    public void establishConnection(String adid, PlayListener listener) {
+        this.establishConnection(adid, true, true, listener);
     }
 
-    public void play(String adid, boolean audioState, boolean autoRotate, PlayListener listener) {
+    public void establishConnection(String adid, boolean audioState, boolean autoRotate, PlayListener listener) {
         this.audioState = audioState;
         this.autoRotate = autoRotate;
         this.playListener = listener;
@@ -69,7 +69,7 @@ public class PlayInView extends FrameLayout implements GameView.GameListener {
     }
 
     public void finish() {
-        playListener.onPlayEnd(true);
+        playListener.didDisconnect(true);
         playEnd();
     }
 
@@ -108,7 +108,7 @@ public class PlayInView extends FrameLayout implements GameView.GameListener {
 
             @Override
             public void failure(final HttpException userActionExc) {
-                playListener.onPlayError(userActionExc);
+                playListener.didConnectFail(userActionExc);
             }
         });
     }
@@ -174,7 +174,7 @@ public class PlayInView extends FrameLayout implements GameView.GameListener {
                 if (totalTime > 0) {
                     getHandler().postDelayed(this, 1000);
                 } else {
-                    playListener.onPlayEnd(false);
+                    playListener.didDisconnect(false);
                     playEnd();
                 }
             }
@@ -198,7 +198,7 @@ public class PlayInView extends FrameLayout implements GameView.GameListener {
 
     @Override
     public void onGameStart() {
-        playListener.onPlayStart(playInfo.getDuration());
+        playListener.didConnectSuccess(playInfo.getDuration());
         countTotalTime();
     }
 
@@ -206,7 +206,7 @@ public class PlayInView extends FrameLayout implements GameView.GameListener {
     public void onGameError(final Exception ex) {
         if (!isFinish) {
             Analyze.getInstance().playError(ex);
-            playListener.onPlayError(ex);
+            playListener.didConnectFail(ex);
         }
         playEnd();
     }

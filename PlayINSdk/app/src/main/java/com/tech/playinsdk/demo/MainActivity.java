@@ -1,7 +1,6 @@
 package com.tech.playinsdk.demo;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -12,7 +11,6 @@ import com.tech.playinsdk.PlayInSdk;
 import com.tech.playinsdk.http.HttpException;
 import com.tech.playinsdk.listener.HttpListener;
 import com.tech.playinsdk.listener.InitListener;
-import com.tech.playinsdk.util.PlayLog;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -54,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Initialize the game SDK
     private void configPlayin() {
         PlayInSdk.getInstance().setLog(true);
-        PlayInSdk.getInstance().configWithKey(Constants.SDK_KEY, new InitListener() {
+        PlayInSdk.getInstance().confirmKey(Constants.SDK_KEY, new InitListener() {
             @Override
             public void success() {
                 checkAvailable();
@@ -67,9 +65,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    // Check game can to play
+    // Check game can to establishConnection
     private void checkAvailable() {
-        PlayInSdk.getInstance().checkAvailable(Constants.SDK_KEY, new HttpListener<Boolean>() {
+        PlayInSdk.getInstance().confirmPlayableAd(Constants.SDK_KEY, new HttpListener<Boolean>() {
             @Override
             public void success(Boolean result) {
                 mPlay.setVisibility(View.VISIBLE);
@@ -77,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void failure(HttpException e) {
-                Toast.makeText(MainActivity.this, "No equipment to play with", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "No equipment to establishConnection with", Toast.LENGTH_SHORT).show();
             }
         });
     }
